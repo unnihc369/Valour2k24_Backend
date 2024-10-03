@@ -1,21 +1,22 @@
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
-import FinalRoute from "../Routes/finalRoute.js";
-import LiveRoute from "../Routes/liveRoute.js";
-import TennisRoute from '../Routes/tennisRoute.js';
+import FinalRoute from "./Routes/finalRoute.js";
+import LiveRoute from "./Routes/liveRoute.js";
+import TennisRoute from './Routes/tennisRoute.js';
 import bodyParser from "body-parser";
-import CricketRoute from '../Routes/cricketRoute.js';
-import userRoutes from '../Routes/userRoutes.js';
+import CricketRoute from './Routes/cricketRoute.js';
+import userRoutes from './Routes/userRoutes.js';
 import { Server } from 'socket.io';
 import http from 'http';
-import dotenv from 'dotenv'; // Import dotenv
+import dotenv from 'dotenv';
 
-// Load environment variables from .env file
 dotenv.config();
 
 const app = express();
 const server = http.createServer(app); // Attach HTTP server
+
+// Initialize Socket.IO server
 const io = new Server(server, {
   cors: {
     origin: "*",
@@ -45,11 +46,6 @@ app.use('/tennis', TennisRoute);
 app.use('/cricket', CricketRoute);
 app.use('/users', userRoutes);
 
-// Health Check Route
-app.get("/", (req, res) => {
-  res.send({ message: "Hello Valour" });
-});
-
 // WebSocket connection
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
@@ -59,7 +55,10 @@ io.on('connection', (socket) => {
   });
 });
 
-// Export server for Vercel
-export default (req, res) => {
-  server(req, res); // Handle incoming requests
-};
+// Start the server using server.listen
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
+export { io };
