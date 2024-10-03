@@ -55,6 +55,10 @@ io.on('connection', (socket) => {
   });
 });
 
+app.get("/",(req,res)=>{
+  res.send({messeage:"Hello Valour"})
+})
+
 // Start the server using server.listen
 const PORT = process.env.PORT || 5000; // Use PORT from environment variables
 server.listen(PORT, () => {
