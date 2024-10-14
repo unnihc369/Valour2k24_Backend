@@ -1,4 +1,5 @@
 import express from 'express'
+import { verifyToken } from './authMiddleware.js';
 
 import {
     addTennis,
@@ -13,9 +14,9 @@ const router = express.Router();
 
 router.get('/', getAllTennis);
 router.get('/:id', getTennisById);
-router.post('/', addTennis);
-router.put('/:id', editTennis);
-router.delete('/:id', deleteTennis);
-router.put('/:id/scores', editScores);
+router.post('/', verifyToken, addTennis);
+router.put('/:id', verifyToken, editTennis);
+router.delete('/:id', verifyToken, deleteTennis);
+router.put('/:id/scores', verifyToken, editScores);
 
 export default router;

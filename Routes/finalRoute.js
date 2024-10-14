@@ -1,4 +1,6 @@
 import express, { Router } from "express";
+import { verifyToken } from './authMiddleware.js';
+
 import {
     getAllFinal,
     getFinalById,
@@ -11,8 +13,8 @@ const router = express.Router();
 
 router.get("/",getAllFinal)
 router.get("/:id",getFinalById)
-router.post("/",addFinal)
-router.put("/:id",editFinal)
-router.delete("/:id", deleteFinal)
+router.post("/", verifyToken, addFinal)
+router.put("/:id", verifyToken, editFinal)
+router.delete("/:id", verifyToken, deleteFinal)
 
 export default router;

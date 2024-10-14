@@ -1,4 +1,6 @@
 import express from 'express';
+import { verifyToken } from './authMiddleware.js';
+
 import {
     addLive,
     deleteLive,
@@ -11,7 +13,7 @@ const router = express.Router();
 router.get('/', getAllLive);
 router.get('/:id', getLiveById);
 router.post('/', addLive);
-router.put('/:id', editLive);
-router.delete('/:id', deleteLive);
+router.put('/:id', verifyToken, editLive);
+router.delete('/:id', verifyToken, deleteLive);
 
 export default router;
