@@ -5,9 +5,7 @@ export const addLive = async (req, res) => {
     try {
         let { gameName, round, winners, teamA, teamB, isLive, group } = req.body;
 
-        if (gameName.toLowerCase().includes('chess')) {
-            gameName = 'Chess';
-        }
+        console.log({ gameName, round, winners, teamA, teamB, isLive, group })
 
         if (!gameName || !round || !teamA || !teamB || typeof isLive !== 'boolean') {
             return res.status(400).json({ message: "Missing required fields or invalid data" });
@@ -16,7 +14,6 @@ export const addLive = async (req, res) => {
         const liveGame = await Live.create({ gameName, round, winners, teamA, teamB, isLive, group });
         res.status(200).json(liveGame);
 
-        // Emit the event to notify clients about the new game
         io.emit('liveGameAdded', liveGame);
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -64,22 +61,36 @@ export const deleteLive = async (req, res) => {
 export const editLive = async (req, res) => {
     const { id } = req.params;
     try {
-        let { gameName, round, winners, teamA, teamB, isLive, group } = req.body;
+        const updateData = {};
+        const { gameName, round, winners, teamA, teamB, isLive, group } = req.body;
+  
+        if (gameName !== undefined) updateData.gameName = gameName;
+        if (round !== undefined) updateData.round = round;
+        if (winners !== undefined) updateData.winners = winners;
+        if (teamA !== undefined) updateData.teamA = teamA;
+        if (teamB !== undefined) updateData.teamB = teamB;
+        if (isLive !== undefined) updateData.isLive = isLive;
+        if (group !== undefined) updateData.group = group;
 
-        // Normalize gameName to "Chess" if the input is "Chess1", "Chess2", etc.
-        if (gameName.toLowerCase().includes('chess')) {
-            gameName = 'Chess';
-        }
-
-        const liveGame = await Live.findByIdAndUpdate(id, { gameName, round, winners, teamA, teamB, isLive, group }, { new: true });
-        if (!liveGame) {
+        const currentGame = await Live.findById(id);
+        if (!currentGame) {
             return res.status(404).json({ message: "Live game not found" });
         }
-        res.status(200).json(liveGame);
 
-        // Emit the event to notify clients about the update
-        io.emit('liveGameUpdated', liveGame);
+        const updatedGame = await Live.findByIdAndUpdate(id, updateData, { new: true });
+
+        if (winners != '' && currentGame.winners !== winners && winners!==undefined) {
+            io.emit('winnerUpdated', updatedGame.winners);  // Emit winner update
+        }
+        // Emit updated game details to all connected clients
+        io.emit('liveGameUpdated', updatedGame);
+
+        res.status(200).json(updatedGame);
     } catch (error) {
-        res.status(404).json({ message: error.message });
+        console.error("Error updating live game:", error);
+        res.status(500).json({ message: error.message });
     }
 };
+
+
+

@@ -7,6 +7,7 @@ import TennisRoute from './Routes/tennisRoute.js';
 import bodyParser from "body-parser";
 import CricketRoute from './Routes/cricketRoute.js';
 import userRoutes from './Routes/userRoutes.js';
+import tournamentRoutes from './Routes/tournamentRoute.js'
 import { Server } from 'socket.io';
 import http from 'http';
 import dotenv from 'dotenv';
@@ -14,9 +15,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
-const server = http.createServer(app); // Attach HTTP server
+const server = http.createServer(app); 
 
-// Initialize Socket.IO server
 const io = new Server(server, {
   cors: {
     origin: "*",
@@ -45,6 +45,7 @@ app.use('/live', LiveRoute);
 app.use('/tennis', TennisRoute);
 app.use('/cricket', CricketRoute);
 app.use('/users', userRoutes);
+app.use('/tour',tournamentRoutes);
 
 // WebSocket connection
 io.on('connection', (socket) => {
